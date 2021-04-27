@@ -27,6 +27,7 @@ function checksCreateTodosUserAvailability(request, response, next) {
   const { user } = request;
 
   if (user.pro == true || user.todos.length < 10) {
+    request.user = user;
     return next();
   }
 
@@ -40,19 +41,21 @@ function checksTodoExists(request, response, next) {
   const user = users.find((user) => user.username === username);
 
   if (!user) {
-    return response.status(404);
+    return response.status(404).json({
+      error: "Not found",
+    });
   }
 
-  const typeId = typeof id;
-
-  if (typeId != uuidv4) {
+  if (!validate(id)) {
     return response.status(400).json(id);
   }
 
   const todo = user.todos.find((todo) => todo.id === id);
 
   if (!todo) {
-    return response.status(404);
+    return response.status(404).json({
+      error: "Not found",
+    });
   }
 
   request.user = user;
